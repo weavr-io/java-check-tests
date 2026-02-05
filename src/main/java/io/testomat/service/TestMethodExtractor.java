@@ -68,8 +68,23 @@ public class TestMethodExtractor {
     private String getMethodCode(MethodDeclaration method) {
         StringBuilder code = new StringBuilder();
 
-        method.getAnnotations().forEach(annotation ->
-                code.append(annotation.toString()).append("\n"));
+        method.getAnnotations().forEach(annotation -> {
+            try {
+                code.append(annotation.toString()).append("\n");
+            } catch (IllegalStateException e) {
+                // Handle annotations with field references like @Tag(MultiTags.SMOKE)
+                // by using the raw annotation string
+                code.append("@").append(annotation.getNameAsString());
+                if (annotation.isSingleMemberAnnotationExpr()) {
+                    code.append("(")
+                            .append(annotation.asSingleMemberAnnotationExpr().getMemberValue())
+                            .append(")");
+                } else if (annotation.isNormalAnnotationExpr()) {
+                    code.append("(...)");
+                }
+                code.append("\n");
+            }
+        });
 
         method.getModifiers().forEach(modifier ->
                 code.append(modifier.getKeyword().asString()).append(" "));
