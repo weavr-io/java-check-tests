@@ -118,10 +118,12 @@ public class TestMethodExtractor {
 
     private Optional<String> getTestId(MethodDeclaration method) {
         return method.getAnnotationByName("TestId")
-            .map(ann -> " @T" + ann.asSingleMemberAnnotationExpr()
+            .map(ann -> ann.asSingleMemberAnnotationExpr()
                 .getMemberValue()
                 .asStringLiteralExpr()
-                .getValue());
+                .getValue().trim())
+            .map(id -> id.startsWith("@T") ? id : "@T" + id)
+            .map(id -> " " + id);
     }
 
     private List<String> getSuites(MethodDeclaration method) {
