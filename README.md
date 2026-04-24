@@ -162,3 +162,27 @@ You can add `export TESTOMATIO_URL=... && \` or `set TESTOMATIO_URL=...&& ^` if 
 **Be patient to the whitespaces in the Windows command.**
 
 >Note: The latest testomatio.jar file will be downloaded from this repository releases.
+
+---
+
+## Updating the jar in qa-opc-e2e
+
+The jar is no longer committed to the repo. The CI workflow downloads it from GitHub Releases and caches it by version.
+
+**To update to a new release:**
+
+1. Rebase this repo onto the upstream tag you want:
+   ```bash
+   git fetch origin && git rebase origin/main
+   ```
+2. Build the jar:
+   ```bash
+   mvn clean package -DskipTests
+   ```
+3. Publish a new release on [weavr-io/java-check-tests](https://github.com/weavr-io/java-check-tests):
+   ```bash
+   gh release create vX.Y.Z-weavr.N target/testomatio.jar \
+     --repo weavr-io/java-check-tests \
+     --title "vX.Y.Z-weavr.N — <description>"
+   ```
+4. Bump `TESTOMATIO_JAR_VERSION` in [check_testomat_ids.yml](https://github.com/weavr-io/qa-opc-e2e/blob/develop/.github/workflows/check_testomat_ids.yml) to the new tag and push.
