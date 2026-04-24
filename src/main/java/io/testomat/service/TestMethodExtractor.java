@@ -23,6 +23,7 @@ public class TestMethodExtractor {
     public List<TestCase> extractTestCases(CompilationUnit cu, String filepath, String framework) {
         List<MethodDeclaration> testMethods = cu.findAll(MethodDeclaration.class).stream()
                 .filter(method -> isTestMethod(method, framework))
+                .filter(method -> !isInAbstractClass(method))
                 .collect(Collectors.toList());
 
         return testMethods.stream()
@@ -46,6 +47,12 @@ public class TestMethodExtractor {
 
                     return false;
                 });
+    }
+
+    private boolean isInAbstractClass(MethodDeclaration method) {
+        return method.findAncestor(ClassOrInterfaceDeclaration.class)
+                .map(ClassOrInterfaceDeclaration::isAbstract)
+                .orElse(false);
     }
 
     private TestCase createTestCase(MethodDeclaration method, String filepath, String framework) {
